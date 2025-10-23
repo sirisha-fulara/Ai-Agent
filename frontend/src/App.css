@@ -1,0 +1,25 @@
+.isolate * {
+  all: unset;
+  display: revert;
+}
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.gradient-line {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(180, 180, 180, 0.9),
+    rgba(0, 0, 0, 0)
+  );
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  width: 60%;
+  margin: 1.5rem auto;;
+}
+
