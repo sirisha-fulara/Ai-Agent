@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, jsonify, request, session, send_file
+from flask import Flask, jsonify, request, session, send_file, send_from_directory
 import traceback
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -390,10 +390,15 @@ def get_me():
         return jsonify({"error": "No user logged in"}), 401
     return jsonify(user_data)
 
-@app.route("/")
-def home():
-    return jsonify({"status": "running", "message": "AI Agent Ready"})
-
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_react(path):
+    frontend_build = os.path.join(os.path.dirname(__file__), "../frontend/build")
+    if path != "" and os.path.exists(os.path.join(frontend_build, path)):
+        return send_from_directory(frontend_build, path)
+    else:
+        return send_from_directory(frontend_build, "index.html")
+    
 # -------------------- Run --------------------
 if __name__ == "__main__":
     app.run(host="localhost", port=5000, debug=True, ssl_context=("cert.pem", "key.pem"))
