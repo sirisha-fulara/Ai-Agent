@@ -10,21 +10,7 @@ import sendFileIcon from "../assets/send.png"
 import voiceButton from "../assets/voice.png"
 import useVoiceChat from "../hooks/useVoiceChat";
 import { cn } from "../lib/utils";
-import {
-    ImageIcon,
-    Figma,
-    MonitorIcon,
-    CircleUserRound,
-    ArrowUpIcon,
-    Paperclip,
-    PlusIcon,
-    SendIcon,
-    XIcon,
-    LoaderIcon,
-    Sparkles,
-    Command,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 // ------------------ Custom Hook ------------------
 function useAutoResizeTextarea({ lineHeight = 24, maxLines = 5 }) {
