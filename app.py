@@ -56,9 +56,9 @@ import os
 os.environ["PATH"] += os.pathsep + r"D:\AI Research CoPilot\ffmpeg\bin"
 
 # -------------------- Models --------------------
-print("🔊 Loading Whisper model (base)...")
-stt_model = whisper.load_model("tiny")
-print("✅ Whisper model ready.")
+print("🔊 Loading Whisper Tiny model...")
+stt_model = whisper.load_model("tiny", device="cpu")  # No GPU, lower memory
+torch.set_grad_enabled(False)    
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
