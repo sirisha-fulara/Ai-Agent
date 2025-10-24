@@ -7,5 +7,5 @@ npm install
 npm run build
 
 # ---------- BACKEND SETUP ----------
-cd ../backend
+cd ..
 pip install -r requirements.txt
