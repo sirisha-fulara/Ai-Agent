@@ -38,22 +38,6 @@ function HeroSplineBackground() {
     );
 }
 
-function ScreenshotSection({ screenshotRef }) {
-    return (
-        <section className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 mt-11 md:mt-12">
-            <div ref={screenshotRef} className="bg-gray-900 rounded-xl overflow-hidden shadow-2xl border border-gray-700/50 w-full md:w-[80%] lg:w-[70%] mx-auto">
-                <div>
-                    <img
-                        src="https://cdn.sanity.io/images/s6lu43cv/production-v4/13b6177b537aee0fc311a867ea938f16416e8670-3840x2160.jpg?w=3840&h=2160&q=10&auto=format&fm=jpg"
-                        alt="App Screenshot"
-                        className="w-full h-auto block rounded-lg mx-auto"
-                    />
-                </div>
-            </div>
-        </section>
-    );
-}
-
 function HeroContent({ user, provider, onLoginGoogle, onLoginGithub, onLogout }) {
     return (
         <div className="text-white px-4 max-w-screen-xl mx-auto w-full flex flex-col lg:flex-row justify-between items-start lg:items-center py-16">
@@ -88,10 +72,10 @@ function HeroContent({ user, provider, onLoginGoogle, onLoginGithub, onLogout })
                 ) : (
                     <div className="flex pointer-events-auto flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3">
                         <button className="border border-white text-white font-semibold py-2 sm:py-3.5 px-6 sm:px-8 rounded-2xl transition duration-300 w-full sm:w-auto hover:bg-white hover:text-black flex" onClick={onLoginGoogle}>
-                            Login with <img className=' px-1 h-7 w-7' src={googleIcon} />
+                            Login with <img className=' px-1 h-7 w-7' src={googleIcon} alt='googleIcon' />
                         </button>
                         <button className="pointer-events-auto bg-white text-black font-semibold py-2.5 sm:py-3.5 px-6 sm:px-8 rounded-2xl transition duration-300 hover:scale-105 flex items-center justify-center w-full sm:w-auto" onClick={onLoginGithub}>
-                            Login with <img className=' px-1 w-7 h-7' src={githubIcon} />
+                            Login with <img className=' px-1 w-7 h-7' src={githubIcon} alt='githubIcon' />
                         </button>
                     </div>
                 )}
