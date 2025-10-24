@@ -57,7 +57,7 @@ os.environ["PATH"] += os.pathsep + r"D:\AI Research CoPilot\ffmpeg\bin"
 
 # -------------------- Models --------------------
 print("🔊 Loading Whisper model (base)...")
-stt_model = whisper.load_model("base")
+stt_model = whisper.load_model("tiny")
 print("✅ Whisper model ready.")
 
 llm = ChatGoogleGenerativeAI(
