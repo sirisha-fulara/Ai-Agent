@@ -56,9 +56,7 @@ import os
 os.environ["PATH"] += os.pathsep + r"D:\AI Research CoPilot\ffmpeg\bin"
 
 # -------------------- Models --------------------
-print("🔊 Loading Whisper Tiny model...")
-stt_model = whisper.load_model("tiny", device="cpu")  # No GPU, lower memory
-torch.set_grad_enabled(False)    
+stt_model = None  
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
@@ -304,6 +302,14 @@ def upload_files():
     return jsonify({"message": f"{len(saved_files)} file(s) uploaded successfully", "files": saved_files})
 
 # -------------------- STT Route --------------------
+def get_stt_model():
+    global stt_model
+    if stt_model is None:
+        print("🔊 Loading Whisper Tiny model on demand...")
+        stt_model = whisper.load_model("tiny", device="cpu")
+        torch.set_grad_enabled(False)
+    return stt_model
+
 @app.route("/stt", methods=["POST"])
 def stt():
     try:
@@ -314,11 +320,13 @@ def stt():
         temp_path = os.path.join(UPLOAD_FOLDER, "temp_audio.wav")
         audio_file.save(temp_path)
 
+        model = get_stt_model()  # <-- Lazy load happens here
         print("🎙️ Transcribing with Whisper...")
-        result = stt_model.transcribe(temp_path)
+        result = model.transcribe(temp_path)
         text = result.get("text", "").strip()
         print(f"✅ Transcribed text: {text}")
 
+        os.remove(temp_path)
         return jsonify({"text": text})
     except Exception as e:
         print("❌ Error in /stt:", traceback.format_exc())
