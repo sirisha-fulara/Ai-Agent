@@ -17,7 +17,6 @@ charset-normalizer==3.4.3
 click==8.1.8
 cloudpathlib==0.22.0
 colorama==0.4.6
-comtypes
 confection==0.1.5
 cryptography==46.0.2
 cymem==2.0.11
@@ -106,11 +105,9 @@ PyMuPDF==1.26.4
 pyparsing==3.2.4
 pypdf==6.1.0
 PyPDF2==3.0.1
-pypiwin32
+
 python-dotenv
-pyttsx3
 pytz
-pywin32
 PyYAML==6.0.2
 realtime==2.21.1
 regex==2025.9.18
