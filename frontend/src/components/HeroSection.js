@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Spline from '@splinetool/react-spline';
 import googleIcon from '../assets/google.png'
 import githubIcon from '../assets/github.png'
-import { User } from 'lucide-react';
 
 function HeroSplineBackground() {
     return (
