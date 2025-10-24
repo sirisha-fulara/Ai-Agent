@@ -78,10 +78,6 @@ Textarea.displayName = "Textarea";
 function UploadButton({ setFile, onUpload }) {
     const fileInputRef = useRef(null);
 
-    const handleClick = () => {
-        fileInputRef.current.click();
-    };
-
     const handleChange = (e) => {
         setFile(e.target.files);
     };
@@ -115,24 +111,15 @@ function UploadButton({ setFile, onUpload }) {
 // ------------------ Main Component ------------------
 export function AnimatedAIChat() {
     const [file, setFile] = useState(null);
-    const [message, setMessage] = useState("");
+    const [setMessage] = useState("");
     const [question, setQuestion] = useState("");
     const [messages, setMessages] = useState([]);
 
-    const [value, setValue] = useState("");
-    const [attachments, setAttachments] = useState([]);
     const [isTyping, setIsTyping] = useState(false);
-    const [isPending, startTransition] = useTransition();
-    const [activeSuggestion, setActiveSuggestion] = useState(-1);
-    const [showCommandPalette, setShowCommandPalette] = useState(false);
-    const [recentCommand, setRecentCommand] = useState(null);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const { textareaRef, adjustHeight } = useAutoResizeTextarea({
         lineHeight: 5, // 1 line height
         maxLines: 5,    // max 5 lines
     });
-    const [inputFocused, setInputFocused] = useState(false);
-    const commandPaletteRef = useRef(null);
     const { recording, startRecording, stopRecording } = useVoiceChat({
         onAddMessage: (role, text) => setMessages(prev => [...prev, { role, text }])
     });
