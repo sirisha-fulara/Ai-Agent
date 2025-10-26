@@ -398,14 +398,30 @@ def get_me():
         return jsonify({"error": "No user logged in"}), 401
     return jsonify(user_data)
 
+import os
+from flask import Flask, send_from_directory
+
+app = Flask(__name__)
+
+# Serve React static files
+@app.route("/static/<path:filename>")
+def serve_static(filename):
+    frontend_build = os.path.join(os.path.dirname(__file__), "frontend", "build")
+    return send_from_directory(os.path.join(frontend_build, "static"), filename)
+
+# Serve React frontend (index.html + routes)
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_react(path):
     frontend_build = os.path.join(os.path.dirname(__file__), "frontend", "build")
-    if path != "" and os.path.exists(os.path.join(frontend_build, path)):
+    target_path = os.path.join(frontend_build, path)
+
+    if path != "" and os.path.exists(target_path):
         return send_from_directory(frontend_build, path)
     else:
+        # Return index.html for React Router or unknown routes
         return send_from_directory(frontend_build, "index.html")
+
 
 
 if __name__ == "__main__":
