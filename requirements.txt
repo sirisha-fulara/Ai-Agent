@@ -21,8 +21,8 @@ gTTS==2.5.4
 langchain==0.3.27
 langchain-community==0.3.29
 langchain-google-genai==2.0.10
-duckduckgo-search==6.2.10
-ddgs==1.0.2
+duckduckgo-search
+ddgs
 
 # --- Utilities ---
 PyPDF2==3.0.1
