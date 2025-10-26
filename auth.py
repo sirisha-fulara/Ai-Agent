@@ -164,7 +164,7 @@ def callback():
     print("✅ Logged in user scopes:", creds.scopes)
 
     # Redirect back to React frontend
-    return redirect("https://localhost:3000/ask")
+    return redirect("https://ai-agent-0qhy.onrender.com/ask")
 
 # ---------- Protected route: /me ----------
 @auth_bp.route("/me")
