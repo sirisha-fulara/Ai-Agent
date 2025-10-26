@@ -37,7 +37,7 @@ def github_callback():
     session["github_user"] = resp.json()
 
     # Determine frontend redirect (local vs production)
-    frontend_url = os.environ.get("FRONTEND_URL", "https://localhost:3000")
+    frontend_url = os.environ.get("FRONTEND_URL", "https://ai-agent-0qhy.onrender.com")
     return redirect(f"{frontend_url}/ask")
 
 # Fetch logged-in GitHub user
