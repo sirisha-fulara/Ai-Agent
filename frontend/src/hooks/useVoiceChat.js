@@ -20,19 +20,19 @@ export default function useVoiceChat({ onAddMessage }) {
           const formData = new FormData();
           formData.append("audio", audioBlob, "speech.wav");
 
-          const sttRes = await axios.post("https://localhost:5000/stt", formData, {
+          const sttRes = await axios.post("https://ai-agent-0qhy.onrender.com/stt", formData, {
             headers: { "Content-Type": "multipart/form-data" },
             withCredentials: true,
           });
           const userText = sttRes.data.text;
           onAddMessage("user", userText);
 
-          const botRes = await axios.post("https://localhost:5000/ask", { query: userText }, {withCredentials: true,});
+          const botRes = await axios.post("https://ai-agent-0qhy.onrender.com/ask", { query: userText }, {withCredentials: true,});
           const botText = botRes.data.answer;
           onAddMessage("bot", botText);
 
           const ttsRes = await axios.post(
-            "https://localhost:5000/tts",
+            "https://ai-agent-0qhy.onrender.com/tts",
             { text: botText },
             { responseType: "blob" , withCredentials: true},
             
