@@ -131,7 +131,7 @@ export function AnimatedAIChat() {
         Array.from(file).forEach((f) => formData.append("files", f));
 
         try {
-            const res = await fetch("https://localhost:5000/upload", {
+            const res = await fetch("https://ai-agent-0qhy.onrender.com/upload", {
                 method: "POST",
                 body: formData,
                 credentials: "include",
@@ -155,7 +155,7 @@ export function AnimatedAIChat() {
         setIsTyping(true);
 
         try {
-            const res = await fetch("https://localhost:5000/ask", {
+            const res = await fetch("https://ai-agent-0qhy.onrender.com/ask", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ query: question }),
