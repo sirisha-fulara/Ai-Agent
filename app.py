@@ -401,12 +401,12 @@ def get_me():
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_react(path):
-    frontend_build = os.path.join(os.path.dirname(__file__), "../frontend/build")
+    frontend_build = os.path.join(os.path.dirname(__file__), "frontend", "build")
     if path != "" and os.path.exists(os.path.join(frontend_build, path)):
         return send_from_directory(frontend_build, path)
     else:
         return send_from_directory(frontend_build, "index.html")
-    
-# -------------------- Run --------------------
+
+
 if __name__ == "__main__":
-    app.run(host="localhost", port=5000, debug=True, ssl_context=("cert.pem", "key.pem"))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
