@@ -37,7 +37,7 @@ from PyPDF2 import PdfReader
 
 # -------------------- Setup --------------------
 load_dotenv()
-app = Flask(__name__)
+app = Flask(__name__, static_folder="frontend/build/static", static_url_path="/static")
 app.secret_key = os.getenv("SESSION_SECRET")
 CORS(app, origins=["https://ai-agent-0qhy.onrender.com"], supports_credentials=True)
 
@@ -398,31 +398,18 @@ def get_me():
         return jsonify({"error": "No user logged in"}), 401
     return jsonify(user_data)
 
-import os
-from flask import Flask, send_from_directory
-
-app = Flask(__name__)
-
-# Serve React static files
-@app.route("/static/<path:filename>")
-def serve_static(filename):
-    frontend_build = os.path.join(os.path.dirname(__file__), "frontend", "build")
-    return send_from_directory(os.path.join(frontend_build, "static"), filename)
-
-# Serve React frontend (index.html + routes)
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_react(path):
     frontend_build = os.path.join(os.path.dirname(__file__), "frontend", "build")
-    target_path = os.path.join(frontend_build, path)
 
-    if path != "" and os.path.exists(target_path):
+    # serve actual files if they exist
+    file_path = os.path.join(frontend_build, path)
+    if path != "" and os.path.exists(file_path):
         return send_from_directory(frontend_build, path)
     else:
-        # Return index.html for React Router or unknown routes
+        # fallback to React index.html for all other routes
         return send_from_directory(frontend_build, "index.html")
 
-
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=5000)
