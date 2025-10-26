@@ -37,7 +37,11 @@ from PyPDF2 import PdfReader
 
 # -------------------- Setup --------------------
 load_dotenv()
-app = Flask(__name__, static_folder="frontend/build/static", static_url_path="/static")
+app = Flask(
+    __name__,
+    static_folder="frontend/build/static",
+    static_url_path="/static"
+)
 app.secret_key = os.getenv("SESSION_SECRET")
 CORS(app, origins=["https://ai-agent-0qhy.onrender.com"], supports_credentials=True)
 
@@ -401,15 +405,14 @@ def get_me():
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_react(path):
-    frontend_build = os.path.join(os.path.dirname(__file__), "frontend", "build")
-
-    # serve actual files if they exist
-    file_path = os.path.join(frontend_build, path)
+    build_dir = os.path.join(os.path.dirname(__file__), "frontend", "build")
+    file_path = os.path.join(build_dir, path)
+    
     if path != "" and os.path.exists(file_path):
-        return send_from_directory(frontend_build, path)
+        return send_from_directory(build_dir, path)
     else:
-        # fallback to React index.html for all other routes
-        return send_from_directory(frontend_build, "index.html")
+        return send_from_directory(build_dir, "index.html")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
