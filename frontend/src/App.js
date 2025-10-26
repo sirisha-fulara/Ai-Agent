@@ -11,7 +11,7 @@ function App() {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await fetch("https://localhost:5000/me", {
+        const res = await fetch("https://ai-agent-0qhy.onrender.com/me", {
           credentials: "include",
         });
         const data = await res.json();
@@ -34,16 +34,16 @@ function App() {
 
   // -------------------- Login & Logout --------------------
   const handleLoginGoogle = () => {
-    window.location.href = "https://localhost:5000/login";
+    window.location.href = "https://ai-agent-0qhy.onrender.com/login";
   };
 
   const handleLoginGithub = () => {
-    window.location.href = "https://localhost:5000/login/github";
+    window.location.href = "https://ai-agent-0qhy.onrender.com/login/github";
   };
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("https://localhost:5000/logout", {
+      const res = await fetch("https://ai-agent-0qhy.onrender.com/logout", {
         method: "GET",
         credentials: "include",
       });
