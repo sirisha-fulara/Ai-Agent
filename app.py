@@ -39,7 +39,7 @@ from PyPDF2 import PdfReader
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SESSION_SECRET")
-CORS(app, origins=["https://localhost:3000"], supports_credentials=True)
+CORS(app, origins=["https://ai-agent-0qhy.onrender.com"], supports_credentials=True)
 
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",
