@@ -20,4 +20,3 @@ else
 fi
 
 echo "🎉 Setup finished! Your project is ready."
-
