@@ -6,8 +6,8 @@ import React, {
 } from "react";
 import uploadFileIcon from "../assets/upload-file.png";
 import sendFileIcon from "../assets/send.png"
-import voiceButton from "../assets/voice.png"
-import useVoiceChat from "../hooks/useVoiceChat";
+// import voiceButton from "../assets/voice.png"
+// import useVoiceChat from "../hooks/useVoiceChat";
 import { cn } from "../lib/utils";
 import { motion } from "framer-motion";
 
@@ -119,9 +119,9 @@ export function AnimatedAIChat() {
         lineHeight: 5, // 1 line height
         maxLines: 5,    // max 5 lines
     });
-    const { recording, startRecording, stopRecording } = useVoiceChat({
-        onAddMessage: (role, text) => setMessages(prev => [...prev, { role, text }])
-    });
+    // const { recording, startRecording, stopRecording } = useVoiceChat({
+    //     onAddMessage: (role, text) => setMessages(prev => [...prev, { role, text }])
+    // });
 
     // -------------------- Upload PDFs --------------------
     const handleUpload = async () => {
@@ -258,7 +258,7 @@ export function AnimatedAIChat() {
 
                             <div className="flex gap-2 justify-end">
                                 <UploadButton setFile={setFile} onUpload={handleUpload}/>
-                                <div className="flex gap-2 justify-end">
+                                {/* <div className="flex gap-2 justify-end">
                                     <button
                                         onClick={recording ? stopRecording : startRecording}
                                         className={`p-2 rounded-md flex items-center justify-center transition
@@ -266,7 +266,7 @@ export function AnimatedAIChat() {
                                     >
                                         <img src={voiceButton} alt="Voice" className="w-6 h-6 brightness-0 invert hover:invert-0 hover:brightness-100 transition" />
                                     </button>
-                                </div>
+                                </div> */}
                                 <button
                                     className="p-2 rounded-md bg-white/10 hover:bg-green-500/20 transition flex items-center justify-center"
                                     onClick={handleQuery}
