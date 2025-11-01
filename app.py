@@ -85,6 +85,11 @@ def get_google_creds():
 # -------------------- PDF Tools --------------------
 UPLOAD_FOLDER = "./uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+from flask import url_for
+ALLOWED_EXTENSIONS = {"pdf", "txt", "docx", "png", "jpg", "jpeg"}
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def read_pdf(file_path: str = None):
     """Reads PDF text from uploads folder or latest uploaded file."""
@@ -93,16 +98,22 @@ def read_pdf(file_path: str = None):
             file_path = session.get("current_pdf")
             if not file_path:
                 return "❌ No PDF uploaded yet."
-        full_path = os.path.join(UPLOAD_FOLDER, file_path)
+        safe_name = (file_path)
+        full_path = os.path.join(UPLOAD_FOLDER, safe_name)
+        if not os.path.exists(full_path):
+            return "❌ PDF not found on server."
         reader = PdfReader(full_path)
-        text = ""
+        text_parts = []
         for page in reader.pages:
             page_text = page.extract_text()
             if page_text:
-                text += page_text + "\n"
-        return text.strip() or "⚠️ PDF seems empty."
+                text_parts.append(page_text)
+        text = "\n".join(text_parts).strip()
+        return text or "⚠️ PDF contains no extractable text."
     except Exception as e:
-        return f"Error reading PDF: {e}"
+        print("❌ read_pdf ERROR:", traceback.format_exc())
+        return f"Error reading PDF: {str(e)}"
+
 
 def summarize_pdf(filename: str = None):
     """Summarizes the latest uploaded PDF file."""
@@ -142,6 +153,49 @@ pdf_summarizer_tool = Tool(
 )
 
 # -------------------- Gmail --------------------
+import json
+
+def parse_email_request(user_input: str):
+    """
+    Uses Gemini to extract email details from a natural prompt.
+    Example: "Send a mail to xyz@gmail.com to apply for leave"
+    """
+    try:
+        parse_prompt = f"""
+        You are an AI email parser. Extract details to send an email from this text:
+        "{user_input}"
+
+        Return JSON with keys:
+        {{
+          "to": "receiver email address",
+          "subject": "a short relevant subject line",
+          "body": "a formal, polite email body"
+        }}
+        """
+
+        parser_chain = LLMChain(llm=llm, prompt=PromptTemplate(
+            template=parse_prompt, input_variables=[]
+        ))
+
+        response = parser_chain.run()
+        print("🧠 Raw email parse:", response)
+
+        # Extract JSON safely
+        start = response.find("{")
+        end = response.rfind("}") + 1
+        if start != -1 and end != -1:
+            data = json.loads(response[start:end])
+        else:
+            raise ValueError("Invalid JSON format from AI")
+
+        if not data.get("to") or "@" not in data["to"]:
+            raise ValueError("Invalid or missing email address")
+        return data
+
+    except Exception as e:
+        print("❌ parse_email_request ERROR:", traceback.format_exc())
+        return None
+
 def read_emails(_input=None):
     creds = get_google_creds()
     service = build("gmail", "v1", credentials=creds)
@@ -153,19 +207,40 @@ def read_emails(_input=None):
     return "\n\n".join(snippets) if snippets else "No recent emails."
 
 def send_email(input_text: str):
+    """
+    Smart email sender — can understand natural prompts or structured input.
+    Example:
+      - "send a mail to xyz@gmail.com for 2 days leave"
+      - "to=xyz@gmail.com, subject=Hello, body=How are you?"
+    """
     try:
         creds = get_google_creds()
-        parts = dict(p.split("=", 1) for p in input_text.split(",") if "=" in p)
-        to, subject, body = parts["to"], parts["subject"], parts["body"]
         service = build("gmail", "v1", credentials=creds)
+
+        # Try to detect JSON-style or natural language
+        if "to=" in input_text and "subject=" in input_text and "body=" in input_text:
+            parts = dict(p.split("=", 1) for p in input_text.split(",") if "=" in p)
+            to = parts.get("to")
+            subject = parts.get("subject", "No Subject")
+            body = parts.get("body", "")
+        else:
+            parsed = parse_email_request(input_text)
+            if not parsed:
+                return "❌ Could not understand email request."
+            to, subject, body = parsed["to"], parsed["subject"], parsed["body"]
+
         message = MIMEText(body)
         message["to"] = to
         message["subject"] = subject
         raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
         service.users().messages().send(userId="me", body={"raw": raw}).execute()
-        return f"✅ Email sent to {to}"
+
+        return f"✅ Email sent successfully to {to}"
+
     except Exception as e:
+        print("❌ send_email ERROR:", traceback.format_exc())
         return f"Failed to send email: {str(e)}"
+
 
 # -------------------- Calendar --------------------
 def list_calendar_events(_input=None, max_events=5):
@@ -293,18 +368,72 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=
 # -------------------- Routes --------------------
 @app.route("/upload", methods=["POST"])
 def upload_files():
-    if "files" not in request.files:
-        return jsonify({"error": "No files uploaded"}), 400
-    files = request.files.getlist("files")
-    saved_files = []
-    for f in files:
-        filename = f.filename
-        f.save(os.path.join(UPLOAD_FOLDER, filename))
-        saved_files.append(filename)
-    session["uploaded_files"] = saved_files
-    session["current_pdf"] = saved_files[-1]  # track latest PDF
-    return jsonify({"message": f"{len(saved_files)} file(s) uploaded successfully", "files": saved_files})
+    """
+    Accepts either:
+      - multipart form with key "files" (multiple) or key "file" (single)
+      - returns JSON with saved filenames and preview URLs
+    """
+    try:
+        uploaded = []
+        # support both 'files' (multiple) and 'file' (single)
+        if "files" in request.files:
+            files = request.files.getlist("files")
+        elif "file" in request.files:
+            files = [request.files.get("file")]
+        else:
+            return jsonify({"error": "No files uploaded (expected form key 'files' or 'file')"}), 400
 
+        if not files:
+            return jsonify({"error": "No files found in request"}), 400
+
+        saved_files = []
+        for f in files:
+            if not f or f.filename == "":
+                continue
+            filename = (f.filename)
+            if not allowed_file(filename):
+                return jsonify({"error": f"File type not allowed: {filename}"}), 400
+            save_path = os.path.join(UPLOAD_FOLDER, filename)
+            # if same filename exists, you may add a suffix to avoid clobbering:
+            base, ext = os.path.splitext(filename)
+            counter = 1
+            while os.path.exists(save_path):
+                filename = f"{base}_{counter}{ext}"
+                save_path = os.path.join(UPLOAD_FOLDER, filename)
+                counter += 1
+            f.save(save_path)
+            saved_files.append(filename)
+
+        if not saved_files:
+            return jsonify({"error": "No valid files saved"}), 400
+
+        # store in session
+        session["uploaded_files"] = saved_files
+        session["current_pdf"] = saved_files[-1]  # track latest uploaded file
+
+        # build preview URLs (served from /uploads/<filename>)
+        previews = [url_for("serve_upload", filename=n, _external=False) for n in saved_files]
+
+        return jsonify({
+            "message": f"{len(saved_files)} file(s) uploaded successfully",
+            "files": saved_files,
+            "previews": previews
+        }), 200
+
+    except Exception as e:
+        print("❌ upload_files ERROR:", traceback.format_exc())
+        return jsonify({"error": f"Upload failed: {str(e)}"}), 500
+    
+
+@app.route("/uploads/<path:filename>")
+def serve_upload(filename):
+    # Serves uploaded files so frontend can preview them via <img> or embed PDF
+    try:
+        safe = (filename)
+        return send_from_directory(UPLOAD_FOLDER, safe, as_attachment=False)
+    except Exception as e:
+        return jsonify({"error": f"File not found: {str(e)}"}), 404
+    
 # -------------------- STT Route --------------------
 def get_stt_model():
     global stt_model
